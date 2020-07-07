@@ -39,9 +39,11 @@ def db_connect():
             `create_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP comment '创建时间',
             `update_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP comment '更新时间',
             `name` VARCHAR(255) NOT NULL,
-            `legend_type` VARCHAR(255) NOT NULL,
+            `lucky_number` VARCHAR(255) NOT NULL,
             `nick` VARCHAR(255) NOT NULL,
             `legend_gcards` INT NOT NULL,
+            `legend_ncards` INT NOT NULL,
+            `legend_type` INT NOT NULL,
             `start_ts` VARCHAR(255) NOT NULL,
             `end_ts` VARCHAR(255) NOT NULL,
             `source_data` VARCHAR(420) NOT NULL,
@@ -63,9 +65,11 @@ def db_operation(gold_data):
     cursor.execute("select max(name) from gold_data;" )
     temp_fetchall = cursor.fetchall()[0][0]
     if not temp_fetchall or str(gold_data[0]) > temp_fetchall :     # 首先判断数据是否是空的，防止第一次建立数据库时出错
-        # 准备插入数据:期号，号码，欧皇，收益，开盘时间，收盘时间，源数据
+        # 准备插入数据:期号，号码，欧皇，金卡收益，开盘时间，收盘时间，源数据，银卡收益，最高收益类型
         # print("insert into gold_data(name,legend_type,nick,legend_gcards,start_ts,end_ts,source_data) values('"+gold_data[0]+"','"+str(gold_data[1])+"','"+gold_data[2]+"','"+str(gold_data[3])+"',"+str(gold_data[4])+",'"+str(gold_data[5])+"',"+'''"'''+gold_data[6]+'''");''')
-        sql_insert_data = "insert into gold_data(name,legend_type,nick,legend_gcards,start_ts,end_ts,source_data) values('"+gold_data[0]+"','"+str(gold_data[1])+"','"+gold_data[2]+"','"+str(gold_data[3])+"',"+str(gold_data[4])+",'"+str(gold_data[5])+"',"+'''"'''+gold_data[6]+'''");'''
+        sql_insert_data = "insert into gold_data(name,lucky_number,nick,legend_gcards,start_ts,end_ts,source_data,legend_ncards,legend_type) values('"+gold_data[0]+"','"+str(gold_data[1])+"','"+gold_data[2]+"','"+str(gold_data[3])+"',"+str(gold_data[4])+",'"+str(gold_data[5])+"',"+'''"'''+gold_data[6]+'''"'''+",'"+str(gold_data[7])+"','"+str(gold_data[8])+"');"
+        # print(sql_insert_data)
+        # exit();
         try:
             cursor.execute(sql_insert_data)
             # 默认开启事务，插入需要执行一次commit
@@ -183,22 +187,29 @@ def main():
                 try:
                     new_msg = sorted(msg,key=lambda x:(x['name']))
                     # print (new_msg)
+                    
                 except:
                     print ('数据错误：不存在name节点！！')
+                
                 for msg_list in new_msg :
                     gold_data = []
+                    # print(msg_list['legend_ncards'])
+                    # exit()
                     try:
                         # print(msg_list)
                         gold_data.append(msg_list['name'])                  # 0 期号
                         gold_data.append(msg_list['lucky_number'])           # 1 号码
                         gold_data.append(msg_list['user_info']['nick'])     # 2 欧皇
-                        gold_data.append(msg_list['legend_gcards'])         # 3 收益
+                        gold_data.append(msg_list['legend_gcards'])         # 3 金卡收益
                         gold_data.append(msg_list['start_ts'])              # 4 开盘时间
                         gold_data.append(msg_list['end_ts'])                # 5 封盘时间
                         gold_data.append(str(msg_list))                     # 6 源数据
+                        gold_data.append(msg_list['legend_ncards'])         # 7 银卡收益
+                        gold_data.append(msg_list['legend_type'])           # 8 最大收益类型，1为金卡，2为银卡
+                        
                     except:
                         pass
-                    if len(gold_data) == 7:
+                    if len(gold_data) == 9:
                         flag = db_operation(gold_data)
                         ctrl_time = msg_list['end_ts']
                     else:

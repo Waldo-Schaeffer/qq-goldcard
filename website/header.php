@@ -2,7 +2,7 @@
 <head>
     <link rel="stylesheet" href="css/bootstrap.min.css">
 
-    <title>金卡传说大数据1.4</title>
+    <title>金卡传说大数据1.7</title>
 
     <style type="text/css">
     

@@ -20,8 +20,8 @@ function db_connect(){
         return false;
     }
 	mysqli_set_charset($result,"utf8");
-    # 从数据库取5个字段：期号，号码，欧皇，收益，封盘时间，逆序后取50条
-    $sql = 'select name,legend_type,nick,legend_gcards,end_ts from gold_data order by key_id desc limit 0,660';
+    # 从数据库取5个字段：期号，号码，欧皇，收益，封盘时间，逆序后取660条
+    $sql = 'select name,lucky_number,nick,legend_gcards,end_ts,legend_ncards,legend_type from gold_data order by key_id desc limit 0,660';
     $query_result = mysqli_query($result, $sql);
     if (!$query_result) {
         printf("Error: %s\n", mysqli_error($result));
@@ -324,12 +324,22 @@ function html_center ($data) {
     # 循环输出表格内容
     $day2_count =  substr($data[(int)substr($data[0][0],-3,3)][0],-3,3) + substr($data[0][0],-3,3);
     for($i=0;$i<$day2_count;++$i) {
+        # 根据legend_type优先显示金卡，无金卡时显示银卡
+        if ($data[$i][6] == 2){
+            $data[$i][3] = $data[$i][5].'&nbsp银卡';
+            $image = './image/yin.png';
+        }
+        else{
+            $data[$i][3] = $data[$i][3].'&nbsp金卡';
+            $image = './image/jin.png';
+        }
+
         echo "
                 <tr bgcolor='#a0b8f8'>
                   <td>" . substr($data[$i][0], -3, 3) . "</td>
                   <td>".$data[$i][1]."</td>
                   <td>".$data[$i][2]."</td>
-                  <td>".$data[$i][3]."</td>
+                  <td><img src='".$image."' width=40 height=25 />&nbsp".$data[$i][3]."</td>
                   <td>" . date('H:i:s', substr($data[$i][4], 0,10)+8*60*60) . "</td>
                 </tr>
               ";
