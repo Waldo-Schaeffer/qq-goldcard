@@ -40,10 +40,14 @@ function advertisement () {
 				<div class='row'>
 				  <div class='col-sm-12 col-lg-12 col-xs-12 col-md-12'>
                     <p style='font-size:22px;color:red'>
-                        63折回收礼物头条，万元以上64折回收，欢迎各大公会前来合作。<br>
-						广告位招租QQ: 1356565637，点击一键加群：<a href='https://jq.qq.com/?_wv=1027&k=55uF80w' target='_blank'>936266825</a><br>
-                        龙龙微信: YunLong525626，秀秀微信: liangxinxiu521<br>     
-                        
+                        金卡链接详见群公告，点击一键加群：<a href='https://jq.qq.com/?_wv=1027&k=55uF80w' target='_blank'>936266825</a>
+						<p>
+							1、进入金卡页面之前需要先前往官网登陆登陆（手机QQ可直接跳过此步骤）：<a href='https://egame.qq.com/usercenter/followlist' target='_blank'>https://egame.qq.com/usercenter/followlist</a><br />
+							2、登录后<a href='https://cdn.egame.qq.com/pgg-h5-cdn/module/golden-card.html' target='_blank'>点击此处进入金卡传说页面</a><br />
+							3、登录后<a href='https://cdn.egame.qq.com/pgg-h5-cdn/module/golden-record.html' target='_blank'>点击此处查看自己的金卡押宝历史记录</a><br />
+							<a href='../' target='_blank'>点击此处返回首页</a>
+						</p>
+						<p>说明：<font color='#ffff00'>血赚</font>&nbsp;&GT;&nbsp;<font color='#fa1ee8'>超赚</font>&nbsp;&GT;&nbsp;<font color='#ff0000'>大赚</font>&nbsp;&GT;&nbsp;<font color='#a0b8f8'>小赚</font>&nbsp;&GT;&nbsp;<font color='#00ff00'>赔了</font>&nbsp;&GT;&nbsp;<font color='#00ff00'>赔光</font></p>
                     </p>
 				  </div>
 				</div>
@@ -302,6 +306,7 @@ function html_header () {
                           <th>号码</th>
                           <th>欧皇</th>
                           <th>收益</th>
+						  <th>盈亏</th>
                           <th>封盘时间</th>
                         </tr>
                         </thead>
@@ -325,21 +330,45 @@ function html_center ($data) {
     $day2_count =  substr($data[(int)substr($data[0][0],-3,3)][0],-3,3) + substr($data[0][0],-3,3);
     for($i=0;$i<$day2_count;++$i) {
         # 根据legend_type优先显示金卡，无金卡时显示银卡
-        if ($data[$i][6] == 2){
-            $data[$i][3] = $data[$i][5].'&nbsp银卡';
-            $image = './image/yin.png';
-        }
-        else{
-            $data[$i][3] = $data[$i][3].'&nbsp金卡';
-            $image = './image/jin.png';
-        }
+        #if ($data[$i][6] == 2){
+        #    $data[$i][3] = $data[$i][5].'&nbsp银卡';
+        #    $image = './image/yin.png';
+        #}
+        #else{
+        #    $data[$i][3] = $data[$i][3].'&nbsp金卡';
+        #    $image = './image/jin.png';
+        #}
+		
+		#直接显示幸运儿的信息，无论金卡银卡
+		
+		#判断盈亏
+		if ($data[$i][5] == 0 ) {
+			$wl = '血赚';
+			$wl_color = '#ffff00';
+		}elseif ((($data[$i][3] / 2) - $data[$i][5]) > 0 ) {
+			$wl = '超赚';
+			$wl_color = '#fa1ee8';
+		}elseif ((($data[$i][3] / 4 * 3) - $data[$i][5]) > 0 ) {
+			$wl = '大赚';
+			$wl_color = '#ff0000';
+		}elseif ((($data[$i][3] / 8 * 7) - $data[$i][5]) >= 0 ) {
+			$wl = '小赚';
+			$wl_color = '#a0b8f8';
+		}elseif ($data[$i][3] == 0 ) {
+			$wl = '赔光';
+			$wl_color = '#00c675';
+		}else{
+			$wl = '赔了';
+			$wl_color = '#00ff00';
+		}
 
         echo "
-                <tr bgcolor='#a0b8f8'>
+                <tr bgcolor='". $wl_color ."'>
                   <td>" . substr($data[$i][0], -3, 3) . "</td>
                   <td>".$data[$i][1]."</td>
                   <td>".$data[$i][2]."</td>
-                  <td><img src='".$image."' width=40 height=25 />&nbsp".$data[$i][3]."</td>
+                  <td><img src='./image/jin.png' width=40 height=25 />&nbsp".$data[$i][3]."金卡<img src='./image/yin.png' width=40 height=25 />&nbsp".$data[$i][5]."银卡&nbsp</td>
+				  <td>". $wl ."</td>
                   <td>" . date('H:i:s', substr($data[$i][4], 0,10)+8*60*60) . "</td>
                 </tr>
               ";
