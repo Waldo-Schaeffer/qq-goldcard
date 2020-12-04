@@ -41,13 +41,30 @@ function advertisement () {
 				  <div class='col-sm-12 col-lg-12 col-xs-12 col-md-12'>
                     <p style='font-size:22px;color:red'>
                         金卡链接详见群公告，点击一键加群：<a href='https://jq.qq.com/?_wv=1027&k=55uF80w' target='_blank'>936266825</a>
+						<div class='box'>
+							<img id='pic' src='../ad1.jpg' width=318 height=120 />
+						</div>
+						<script>
+							var pic=document.getElementById('pic');
+							var n=1;
+							function picLunH(){
+								n++;
+								if(n==2)
+								{
+									n=0;
+								}
+								pic.src='../ad'+n+'.jpg'
+								
+							}
+							setInterval(picLunH,200);
+						</script>
 						<p>
 							1、进入金卡页面之前需要先前往官网登陆登陆（手机QQ可直接跳过此步骤）：<a href='https://egame.qq.com/usercenter/followlist' target='_blank'>https://egame.qq.com/usercenter/followlist</a><br />
 							2、登录后<a href='https://cdn.egame.qq.com/pgg-h5-cdn/module/golden-card.html' target='_blank'>点击此处进入金卡传说页面</a><br />
 							3、登录后<a href='https://cdn.egame.qq.com/pgg-h5-cdn/module/golden-record.html' target='_blank'>点击此处查看自己的金卡押宝历史记录</a><br />
 							<a href='../' target='_blank'>点击此处返回首页</a>
 						</p>
-						<p>说明：<font color='#ffff00'>血赚</font>&nbsp;&GT;&nbsp;<font color='#fa1ee8'>超赚</font>&nbsp;&GT;&nbsp;<font color='#ff0000'>大赚</font>&nbsp;&GT;&nbsp;<font color='#a0b8f8'>小赚</font>&nbsp;&GT;&nbsp;<font color='#00ff00'>赔了</font>&nbsp;&GT;&nbsp;<font color='#00ff00'>赔光</font></p>
+						<!--p>说明：<font color='#ffff00'>血赚</font>&nbsp;&GT;&nbsp;<font color='#fa1ee8'>超赚</font>&nbsp;&GT;&nbsp;<font color='#ff0000'>大赚</font>&nbsp;&GT;&nbsp;<font color='#a0b8f8'>小赚</font>&nbsp;&GT;&nbsp;<font color='#00ff00'>赔了</font>&nbsp;&GT;&nbsp;<font color='#00ff00'>赔光</font></p-->
                     </p>
 				  </div>
 				</div>
@@ -306,7 +323,8 @@ function html_header () {
                           <th>号码</th>
                           <th>欧皇</th>
                           <th>收益</th>
-						  <th>盈亏</th>
+						  <th>盈亏比例</th>
+						  <th>盈亏金额</th>
                           <th>封盘时间</th>
                         </tr>
                         </thead>
@@ -342,23 +360,37 @@ function html_center ($data) {
 		#直接显示幸运儿的信息，无论金卡银卡
 		
 		#判断盈亏
+		#$data[$i][5] 银卡
+		#$data[$i][3] 金卡
+		#总投入：(金卡/4 + 银卡)/2 = 9999钻石
+		#总产出：金卡+ 银卡/10 = 8888 + 1777.6 = 10,665.6钻石
+		#总收益：总产出-总投入
+		$tr = (($data[$i][3] / 4) + $data[$i][5]) / 2;
+		$cs = $data[$i][3] + ($data[$i][5] / 10);
+		$wl_rate = (($cs - $tr) / $tr) * 100;
 		if ($data[$i][5] == 0 ) {
 			$wl = '血赚';
+			$wl_1 = '盈利';
 			$wl_color = '#ffff00';
-		}elseif ((($data[$i][3] / 2) - $data[$i][5]) > 0 ) {
+		}elseif ($wl_rate >= 400) {
 			$wl = '超赚';
+			$wl_1 = '盈利';
 			$wl_color = '#fa1ee8';
-		}elseif ((($data[$i][3] / 4 * 3) - $data[$i][5]) > 0 ) {
+		}elseif ($wl_rate >= 100) {
 			$wl = '大赚';
+			$wl_1 = '盈利';
 			$wl_color = '#ff0000';
-		}elseif ((($data[$i][3] / 8 * 7) - $data[$i][5]) >= 0 ) {
+		}elseif ($wl_rate >= 0) {
 			$wl = '小赚';
+			$wl_1 = '盈利';
 			$wl_color = '#a0b8f8';
 		}elseif ($data[$i][3] == 0 ) {
 			$wl = '赔光';
+			$wl_1 = '亏损';
 			$wl_color = '#00c675';
 		}else{
 			$wl = '赔了';
+			$wl_1 = '亏损';
 			$wl_color = '#00ff00';
 		}
 
@@ -368,7 +400,8 @@ function html_center ($data) {
                   <td>".$data[$i][1]."</td>
                   <td>".$data[$i][2]."</td>
                   <td><img src='./image/jin.png' width=40 height=25 />&nbsp".$data[$i][3]."金卡<img src='./image/yin.png' width=40 height=25 />&nbsp".$data[$i][5]."银卡&nbsp</td>
-				  <td>". $wl ."</td>
+				  <td>". $wl ."(" . round($wl_rate,2) . "%)</td>
+				  <td>". $wl_1 . abs((($data[$i][3]) + ($data[$i][5] / 10)) - (($data[$i][3] / 4)+ ($data[$i][5])) / 2 ) ."钻石</td>
                   <td>" . date('H:i:s', substr($data[$i][4], 0,10)+8*60*60) . "</td>
                 </tr>
               ";
